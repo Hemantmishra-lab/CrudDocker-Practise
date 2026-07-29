@@ -1,0 +1,51 @@
+services:
+  # 1. Spring Boot Application Service (Service Name Lowercase)
+  crud-docker-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: crud:local
+    container_name: crud-docker-app
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/crud_docker_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456789"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+    restart: unless-stopped
+    depends_on:
+      mysqldb:
+        condition: service_healthy # Wait for MySQL to be fully ready
+    networks:
+      - crud-docker-network
+
+  # 2. MySQL Database Service
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqldb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456789"
+      MYSQL_DATABASE: crud_docker_db
+    ports:
+      - "3307:3306" # Local machine port 3307 mapped to container 3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - crud-docker-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+# Network declaration
+networks:
+  crud-docker-network:
+    name: crud-docker-network
+
+# Volume declaration
+volumes:
+  mysql_data:
