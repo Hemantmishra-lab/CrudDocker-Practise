@@ -1,5 +1,7 @@
 package org.hemantmishra.cruddockerpractise.controller;
 
+import org.hemantmishra.cruddockerpractise.dto.StudentRequestDTO;
+import org.hemantmishra.cruddockerpractise.dto.StudentResponseDTO;
 import org.hemantmishra.cruddockerpractise.entity.Student;
 import org.hemantmishra.cruddockerpractise.service.StudentService;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,9 @@ public class StudentController {
     }
 
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody  Student student){
+    public ResponseEntity<StudentResponseDTO> createStudent(@RequestBody StudentRequestDTO studentRequestDTO){
         System.out.println("Hello Sir");
-        return ResponseEntity.status(200).body(studentService.createStudent(student));
+        return ResponseEntity.status(200).body(studentService.createStudent(studentRequestDTO));
     }
 
     @GetMapping("/{id}")
